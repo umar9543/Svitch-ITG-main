@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <webSocket enabled="false" />
+    <handlers>
+      <remove name="iisnode" />
+      <add name="iisnode" path="*.js" verb="*" modules="iisnode" scriptProcessor="C:\Program Files\iisnode\iisnode.dll" resourceType="Unspecified" requireAccess="Script" preCondition="bitness64" />
+    </handlers>
+
+    <rewrite>
+      <rules>
+        <!-- Redirect all traffic to HTTPS if not already -->
+        <rule name="Redirect to HTTPS" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions>
+            <add input="{HTTPS}" pattern="off" ignoreCase="true" />
+          </conditions>
+          <action type="Redirect" url="https://{HTTP_HOST}/{R:1}" redirectType="Permanent" />
+        </rule>
+
+        <!-- Do not interfere with requests for node-inspector debugging -->
+        <rule name="NodeInspector" patternSyntax="ECMAScript" stopProcessing="true">
+          <match url="^server.js/debug[\/]?" />
+        </rule>
+
+        <!-- First consider whether the incoming URL matches a physical file in the /public folder -->
+        <rule name="StaticContent">
+          <action type="Rewrite" url="public{REQUEST_URI}" />
+        </rule>
+
+        <!-- All other URLs are mapped to the node.js site entry point -->
+        <rule name="DynamicContent">
+          <conditions>
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True" />
+          </conditions>
+          <action type="Rewrite" url="server.js" />
+        </rule>
+      </rules>
+    </rewrite>
+
+    <security>
+      <requestFiltering>
+        <hiddenSegments>
+          <add segment="node_modules" />
+        </hiddenSegments>
+      </requestFiltering>
+    </security>
+
+    <!-- Ensure error responses are left untouched -->
+    <httpErrors existingResponse="PassThrough" />
+    <iisnode loggingEnabled="true" devErrorsEnabled="true" node_env="production" nodeProcessCommandLine="C:\Program Files\nodejs\node.exe" />
+  </system.webServer>
+</configuration>
