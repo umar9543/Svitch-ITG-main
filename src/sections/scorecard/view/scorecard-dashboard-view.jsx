@@ -25,6 +25,8 @@ import {
   Chip,
 } from '@mui/material';
 import Iconify from 'src/components/iconify';
+import { useRouter } from 'src/routes/hooks';
+import { paths } from 'src/routes/paths';
 
 // ApexCharts – SSR safe
 const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
@@ -65,7 +67,6 @@ const PILLARS = [
   { key: 'turnoverMargin', label: 'Turnover', max: 30 },
   { key: 'assortmentInnovation', label: 'Assortment', max: 30 },
   { key: 'quality', label: 'Quality', max: 25 },
-  { key: 'fulfillment', label: 'Fulfillment', max: 15 },
   { key: 'terms', label: 'Terms', max: 15 },
 ];
 
@@ -238,12 +239,17 @@ function TierPillarPanel({ tierName, suppliers, color }) {
 // SUPPLIER TABLE ROW
 // ─────────────────────────────────────────────
 function SupplierRow({ supplier }) {
+  const router = useRouter();
   const badge = TIER_BADGE[supplier.tier] || { label: '?', color: '#999' };
   const score = supplier.totalScore ?? 0;
   const pct = Math.min(score, 100);
 
   return (
-    <TableRow hover sx={{ cursor: 'default' }}>
+    <TableRow 
+      hover 
+      onClick={() => router.push(paths.dashboard.scorecardDetail(supplier.vendorNo))}
+      sx={{ cursor: 'pointer' }}
+    >
       <TableCell sx={{ width: 60, textAlign: 'center' }}>
         <Avatar
           sx={{
@@ -289,15 +295,16 @@ function SupplierRow({ supplier }) {
           </Box> */}
         </Stack>
       </TableCell>
-      {/* <TableCell align="right">
+      <TableCell align="right">
         <Button
           size="small"
           endIcon={<Iconify icon="eva:arrow-forward-fill" />}
           sx={{ color: 'text.secondary', fontWeight: 500 }}
+          onClick={() => router.push(paths.dashboard.scorecardDetail(supplier.vendorNo))}
         >
           View
         </Button>
-      </TableCell> */}
+      </TableCell>
     </TableRow>
   );
 }
@@ -775,9 +782,9 @@ export default function ScorecardDashboardView() {
                 <TableCell sx={{ fontWeight: 700, fontSize: 13, width: 60 }}>Rank</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: 13 }}>Supplier ↓</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: 13 }}>Score ↓</TableCell>
-                {/* <TableCell sx={{ fontWeight: 700, fontSize: 13 }} align="right">
+                <TableCell sx={{ fontWeight: 700, fontSize: 13 }} align="right">
                   Action
-                </TableCell> */}
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

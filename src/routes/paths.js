@@ -100,6 +100,7 @@ export const paths = {
   dashboard: {
     root: ROOTS.DASHBOARD,
     scorecard: `${ROOTS.DASHBOARD}/scorecard`,
+    scorecardDetail: (id) => `${ROOTS.DASHBOARD}/scorecard/${id}`,
     businessTurnover: `${ROOTS.DASHBOARD}/scorecard/turnover`,
     mail: `${ROOTS.DASHBOARD}/mail`,
     customerDatabase: {

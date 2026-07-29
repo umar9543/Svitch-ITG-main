@@ -68,11 +68,11 @@ export function useNavData() {
           //   path: paths.dashboard.root,
           //   icon: ICONS.dashboard,
           // },
-          {
-            title: t('Conrad Scorecard'),
-            path: paths.dashboard.scorecard,
-            icon: ICONS.analytics,
-          },
+          // {
+          //   title: t('Conrad Scorecard'),
+          //   path: paths.dashboard.scorecard,
+          //   icon: ICONS.analytics,
+          // },
           {
             title: t('Business Turnover'),
             path: paths.dashboard.businessTurnover,

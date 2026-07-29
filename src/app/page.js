@@ -3,7 +3,7 @@ import { AuthGuard } from 'src/auth/guard';
 import DashboardLayout from 'src/layouts/dashboard';
 
 import { OverviewAppView } from 'src/sections/overview/app/view';
-import ScorecardDashboardView from 'src/sections/scorecard/view/scorecard-dashboard-view';
+import BusinessTurnoverView from 'src/sections/scorecard/view/business-turnover-view';
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ export default function HomePage() {
     <>
       <AuthGuard>
         <DashboardLayout>
-          <ScorecardDashboardView />
+          <BusinessTurnoverView />
         </DashboardLayout>
       </AuthGuard>
     </>

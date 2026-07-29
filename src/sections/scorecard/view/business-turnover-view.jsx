@@ -27,6 +27,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 import Iconify from 'src/components/iconify';
+import { useRouter } from 'src/routes/hooks';
+import { paths } from 'src/routes/paths';
 
 const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -34,7 +36,7 @@ const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 // CONFIG
 // ─────────────────────────────────────────────
 const API_BASE = 'https://scorecard-production-e741.up.railway.app/api/conrad';
-const API_KEY = '6cefbca609d6f935f9ff82ad234435c90eca70a0d8e46c6b1e6a151438faa93a';
+const API_KEY = '081473f4b1e7309a9a09127bf277c15565b213fcf230451618d697071ebc30a4';
 
 // Correct order: Top 80% (green) → 80–95% (blue) → Tail 95%+ (orange)
 const SEGMENTS = [
@@ -52,8 +54,8 @@ const VALUE_BUCKETS = [
 const PILLARS = [
   { key: 'turnoverMargin', short: 'Turnover', max: 30, color: '#22C55E' },
   { key: 'assortmentInnovation', short: 'Assortment', max: 30, color: '#3B82F6' },
-  { key: 'quality', short: 'Quality', max: 30, color: '#F59E0B' },
-  { key: 'fulfillment', short: 'Fulfill.', max: 25, color: '#3B82F6' },
+  { key: 'quality', short: 'Quality', max: 25, color: '#F59E0B' },
+  { key: 'fulfillment', short: 'Fulfillment', max: 25, color: '#8B5CF6' },
   { key: 'terms', short: 'Terms', max: 15, color: '#22C55E' },
 ];
 
@@ -96,14 +98,17 @@ function ClassBadge({ cls }) {
   );
 }
 
-function PillarCell({ score, color }) {
-  if (score == null || score === 0) {
+function PillarCell({ score, max, color, isTotal }) {
+  if (score == null || score === '-') {
     return <Typography variant="body2" sx={{ color: 'text.disabled', textAlign: 'center' }}>–</Typography>;
   }
+  const pct = max ? Math.min((Number(score) / max) * 100, 100) : 0;
   return (
     <Box sx={{ textAlign: 'center' }}>
-      <Typography variant="body2" fontWeight={600}>{score}</Typography>
-      {/* <Box sx={{ height: 2, borderRadius: 1, bgcolor: color, mt: 0.4, mx: 'auto', width: '65%' }} /> */}
+      <Typography variant="body2" fontWeight={isTotal ? 700 : 600} sx={{ color: isTotal ? 'text.primary' : 'inherit', mb: 0.5 }}>{score}</Typography>
+      <Box sx={{ height: 3, borderRadius: 1.5, bgcolor: `${color}33`, mx: 'auto', width: '65%', overflow: 'hidden' }}>
+        <Box sx={{ height: '100%', borderRadius: 1.5, bgcolor: color, width: `${pct}%` }} />
+      </Box>
     </Box>
   );
 }
@@ -113,6 +118,7 @@ function PillarCell({ score, color }) {
 // ─────────────────────────────────────────────
 export default function BusinessTurnoverView() {
   const theme = useTheme();
+  const router = useRouter();
   const [turnoverData, setTurnoverData] = useState(null);
   const [resultsData, setResultsData] = useState(null);
   const [percentileData, setPercentileData] = useState(null);
@@ -557,7 +563,7 @@ export default function BusinessTurnoverView() {
               </Typography>
             </Stack>
             <Typography variant="body2" color="text.secondary">
-              2025 · {kpi.withValue} with value · {kpi.noValue} without · click a segment to filter the table
+              2025 · {kpi.withValue} Suppliers with value · {kpi.noValue} Suppliers without value · click a segment to filter the table
             </Typography>
           </Box>
 
@@ -609,8 +615,8 @@ export default function BusinessTurnoverView() {
         <Grid container spacing={2}>
           {[
             { label: 'Total Suppliers', value: kpi.totalSuppliers, icon: 'mdi:account-group', c: '#1B3FBD' },
-            { label: 'With Value', value: kpi.withValue, icon: 'mdi:check-circle', c: '#22C55E' },
-            { label: 'No Value', value: kpi.noValue, icon: 'mdi:close-circle', c: '#E53935' },
+            { label: 'Suppliers With Value', value: kpi.withValue, icon: 'mdi:check-circle', c: '#22C55E' },
+            { label: 'Suppliers With No Value', value: kpi.noValue, icon: 'mdi:close-circle', c: '#E53935' },
             { label: metric === 'ceiProfit' ? 'Total Value (HKD)' : 'Total Value (EUR)', value: fmtVal(kpi.totalValue), icon: metric === 'ceiProfit' ? 'mdi:currency-cny' : 'mdi:currency-eur', c: '#F59E0B' },
           ].map((k) => (
             <Grid item xs={6} md={3} key={k.label}>
@@ -829,7 +835,33 @@ export default function BusinessTurnoverView() {
       {/* ══ SUPPLIER TABLE ══ */}
       <Card ref={tableRef} sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <Box sx={{ p: 3, pb: 2 }}>
-          <Typography variant="subtitle1" fontWeight={700}>Supplier's Economical & Performance Matrix</Typography>
+          <Stack direction="row" alignItems="center" spacing={1} mb={0.5}>
+            <Typography variant="subtitle1" fontWeight={700}>Supplier's Economical & Performance Matrix</Typography>
+            <Tooltip
+              title="NA means data not available in supplier performance sheet"
+              arrow
+              placement="top"
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    bgcolor: '#fff',
+                    border: '1px solid rgba(0,0,0,0.1)',
+                    borderRadius: 2,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                    px: 1.5, py: 1.25,
+                    color: '#212B36',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    '& .MuiTooltip-arrow': { color: '#fff' },
+                  },
+                },
+              }}
+            >
+              <Box component="span" sx={{ display: 'inline-flex', cursor: 'pointer' }}>
+                <Iconify icon="eva:info-outline" width={18} sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }} />
+              </Box>
+            </Tooltip>
+          </Stack>
           <Typography variant="caption" color="text.secondary">
             {metricLabel} 2025 · {filtered.length} suppliers shown
             {segmentFilter ? ` — filtered by "${segmentFilter}"` : ' — click a chart segment to filter'}
@@ -980,22 +1012,22 @@ export default function BusinessTurnoverView() {
                         {
                           name: 'CEI Buying 2025',
                           how: 'CEI buying turnover (USD) in descending order',
-                          scores: { '3pts': 'Top 80%', '2pts': '80–95%', '1pt': '95–100%', '0pts': 'No Turnover' },
+                          scores: { '3': 'Top 80%', '2': '80–95%', '1pt': '95–100%', '0': 'No Turnover' },
                         },
                         {
                           name: 'CEE Retail 2025',
                           how: 'CEE GMV (EUR) in descending order',
-                          scores: { '3pts': 'Top 80%', '2pts': '80–95%', '1pt': '95–100%', '0pts': 'No Turnover' },
+                          scores: { '3': 'Top 80%', '2': '80–95%', '1pt': '95–100%', '0': 'No Turnover' },
                         },
                         {
                           name: 'CEI Margin 2025',
                           how: 'CEI profit (HKD) in descending order',
-                          scores: { '3pts': 'Top 80%', '2pts': '80–95%', '1pt': '95–100%', '0pts': 'No Turnover' },
+                          scores: { '3': 'Top 80%', '2': '80–95%', '1pt': '95–100%', '0': 'No Turnover' },
                         },
                         {
                           name: 'CEE CM1 2025',
                           how: 'CEE CM1 (EUR) in descending order',
-                          scores: { '3pts': 'Top 80%', '2pts': '80–95%', '1pt': '95–100%', '0pts': 'No Turnover' },
+                          scores: { '3': 'Top 80%', '2': '80–95%', '1pt': '95–100%', '0': 'No Turnover' },
                         },
                       ],
                     },
@@ -1007,44 +1039,44 @@ export default function BusinessTurnoverView() {
                         {
                           name: 'New Item %',
                           how: 'No. of New items ÷ Total number of items',
-                          scores: { '3pts': '≥ 10%', '2pts': '5–10%', '1pt': '< 5%', '0pts': '0%' },
+                          scores: { '3': '≥ 10%', '2': '5–10%', '1pt': '< 5%', '0': '0%' },
                         },
                         {
                           name: 'Pipeline Development Time',
                           how: 'Avg (GM Approved date + 30) − wait order date',
-                          scores: { '3pts': '≤ 0 days', '2pts': '1–7 days', '1pt': '7–14 days', '0pts': '> 14 days' },
+                          scores: { '3': '≤ 0 days', '2': '1–7 days', '1pt': '7–14 days', '0': '> 14 days' },
                         },
                       ],
                     },
                     quality: {
                       icon: 'mdi:shield-check-outline',
                       title: 'Quality Assurance',
-                      weight: '30%',
+                      weight: '25%',
                       items: [
                         {
                           name: 'Inspection Pass Rate',
                           how: 'No. of Pass inspections ÷ Total inspections',
-                          scores: { '3pts': '100%', '2pts': '91–99%', '1pt': '80–90%', '0pts': '< 80%' },
+                          scores: { '3': '100%', '2': '91–99%', '1pt': '80–90%', '0': '< 80%' },
                         },
                         {
                           name: 'Inspection Defect Rate',
                           how: 'No. of defects ÷ Total inspected samples',
-                          scores: { '3pts': '≤ 2%', '2pts': '2–2.5%', '1pt': '2.5–3%', '0pts': '> 3%' },
+                          scores: { '3': '≤ 2%', '2': '2–2.5%', '1pt': '2.5–3%', '0': '> 3%' },
                         },
                         {
                           name: 'Number of Re-inspections',
                           how: 'Count of re-inspection occurrences',
-                          scores: { '3pts': '0', '2pts': '1', '1pt': '2', '0pts': '> 2' },
+                          scores: { '3': '0', '2': '1', '1pt': '2', '0': '> 2' },
                         },
                         {
                           name: 'Customer Return Rate',
                           how: 'Return qty ÷ Sold Quantity',
-                          scores: { '3pts': '0%', '2pts': '0–2.5%', '1pt': '2.5–5%', '0pts': '> 5%' },
+                          scores: { '3': '0%', '2': '0–2.5%', '1pt': '2.5–5%', '0': '> 5%' },
                         },
                         {
                           name: 'Customer Complaints',
                           how: 'Complaints from CEE (JIRA tickets)',
-                          scores: { '3pts': '0', '1pt': 'High & Medium', '-3pts': 'Critical' },
+                          scores: { '3': '0', '1pt': 'High & Medium', '-3': 'Critical' },
                         },
                       ],
                     },
@@ -1056,22 +1088,22 @@ export default function BusinessTurnoverView() {
                         {
                           name: 'On-Time Delivery',
                           how: 'Avg (Cargo receipt date − cETD)',
-                          scores: { '3pts': '≤ 0 days', '0pts': '> 0 days' },
+                          scores: { '3': '≤ 0 days', '0': '> 0 days' },
                         },
                         {
                           name: 'On-Time Vessel Booking',
                           how: 'Avg (cETD − Shipment booking date)',
-                          scores: { '3pts': '≥ 28 days', '2pts': '21–27 days', '1pt': '14–20 days', '0pts': '< 14 days' },
+                          scores: { '3': '≥ 28 days', '2': '21–27 days', '1pt': '14–20 days', '0': '< 14 days' },
                         },
                         {
                           name: 'On-Time Inspection Booking',
                           how: 'Avg (ETD − Inspection booking date)',
-                          scores: { '3pts': '≥ 14 days', '2pts': '8–13 days', '1pt': '1–7 days', '0pts': '≤ 0 days' },
+                          scores: { '3': '≥ 14 days', '2': '8–13 days', '1pt': '1–7 days', '0': '≤ 0 days' },
                         },
                         {
                           name: 'On-Time Order Confirmation',
                           how: 'Avg (Order confirm date − Order create date)',
-                          scores: { '3pts': '≤ 7 days', '2pts': '8–14 days', '1pt': '15–21 days', '0pts': '> 21 days' },
+                          scores: { '3': '≤ 7 days', '2': '8–14 days', '1pt': '15–21 days', '0': '> 21 days' },
                         },
                       ],
                     },
@@ -1083,22 +1115,22 @@ export default function BusinessTurnoverView() {
                         {
                           name: 'Payment Terms',
                           how: 'Payment Terms code agreed with supplier',
-                          scores: { '3pts': 'T/T (codes 100–700)', '2pts': 'L/C (codes 200–202)', '0pts': 'Others' },
+                          scores: { '3': 'T/T (codes 100–700)', '2': 'L/C (codes 200–202)', '0': 'Others' },
                         },
                         {
                           name: 'Service Remission %',
                           how: 'Service remission percentage',
-                          scores: { '3pts': '≥ 3%', '2pts': '≥ 2%', '1pt': '≤ 1%', '0pts': '0%' },
+                          scores: { '3': '≥ 3%', '2': '≥ 2%', '1pt': '≤ 1%', '0': '0%' },
                         },
                         {
                           name: 'Purchase Volume Bonus %',
                           how: 'Agreed bonus percentage',
-                          scores: { '3pts': 'Unconditional', '1pt': 'Conditional', '0pts': 'No Bonus' },
+                          scores: { '3': 'Unconditional', '1pt': 'Conditional', '0': 'No Bonus' },
                         },
                         {
                           name: 'MOV Required',
                           how: 'Minimum Order Value per shipment',
-                          scores: { '3pts': 'No MOV', '0pts': 'MOV required' },
+                          scores: { '3': 'No MOV', '0': 'MOV required' },
                         },
                       ],
                     },
@@ -1148,7 +1180,7 @@ export default function BusinessTurnoverView() {
                                       )}
                                       <Box sx={{ p: 0.6, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.05)' }}>
                                         <Typography sx={{ fontSize: 10, color: 'rgba(0,0,0,0.55)', fontFamily: 'monospace', lineHeight: 1.7 }}>
-                                          {Object.entries(item.scores).map(([pts, label]) => `${pts}pts: ${label}`).join(' · ')}
+                                          {Object.entries(item.scores).map(([pts, label]) => `${pts}: ${label}`).join(' · ')}
                                         </Typography>
                                       </Box>
                                       {i < tip.items.length - 1 && (
@@ -1208,7 +1240,7 @@ export default function BusinessTurnoverView() {
                           {[
                             { name: 'Turnover & Margin', weight: '30%' },
                             { name: 'Assortment & Innovation', weight: '30%' },
-                            { name: 'Quality Assurance', weight: '30%' },
+                            { name: 'Quality Assurance', weight: '25%' },
                             { name: 'Fulfillment & Operations', weight: '25%' },
                             { name: 'Terms & Conditions', weight: '15%' },
                           ].map((item, i) => (
@@ -1238,7 +1270,12 @@ export default function BusinessTurnoverView() {
               {paginated.map((s) => {
                 const segColor = currentSegments.find((sg) => sg.label === (chartType === 'cumulative' ? s.segment : s.valueBucket))?.color ?? '#ccc';
                 return (
-                  <TableRow key={s.vendorNo} hover>
+                  <TableRow
+                    key={s.vendorNo}
+                    hover
+                    onClick={() => router.push(paths.dashboard.scorecardDetail(s.vendorNo))}
+                    sx={{ cursor: 'pointer' }}
+                  >
                     <TableCell>
                       <Stack direction="row" alignItems="center" spacing={1.2}>
                         <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: segColor, flexShrink: 0 }} />
@@ -1256,7 +1293,7 @@ export default function BusinessTurnoverView() {
                         if (sp == null) return <Typography variant="body2" color="text.disabled">–</Typography>;
                         return (
                           <Box>
-                            <Typography variant="body2" fontWeight={600}>{sp.toFixed(4)}%</Typography>
+                            <Typography variant="body2" fontWeight={600}>{sp.toFixed(2)}%</Typography>
                             {/* <Box sx={{ height: 3, borderRadius: 2, bgcolor: 'grey.200', mt: 0.5 }}>
                               <Box sx={{ height: '100%', borderRadius: 2, bgcolor: '#1B3FBD', width: `${Math.min(sp * 4, 100)}%` }} />
                             </Box> */}
@@ -1267,14 +1304,16 @@ export default function BusinessTurnoverView() {
                     {/* <TableCell sx={{ textAlign: 'center' }}><ClassBadge cls={s.cls} /></TableCell> */}
                     {PILLARS.map((p) => (
                       <TableCell key={p.key} sx={{ textAlign: 'center' }}>
-                        <PillarCell score={s.pillars?.[p.key]?.score} color={p.color} />
+                        <PillarCell score={s.pillars?.[p.key]?.score} max={p.max} color={p.color} />
                       </TableCell>
                     ))}
                     <TableCell sx={{ textAlign: 'center' }}>
-                      {s.totalScore != null && Number(s.totalScore) !== 0
-                        ? <Typography variant="body2" fontWeight={700} sx={{ color: 'black' }}>{Number(s.totalScore).toFixed(2)}</Typography>
-                        : <Typography variant="body2" color="text.disabled">–</Typography>
-                      }
+                      <PillarCell
+                        score={s.totalScore == null ? '-' : isNaN(Number(s.totalScore)) ? s.totalScore : Number(s.totalScore).toFixed(2)}
+                        max={100}
+                        color={segColor}
+                        isTotal
+                      />
                     </TableCell>
                   </TableRow>
                 );

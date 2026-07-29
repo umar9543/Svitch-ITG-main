@@ -1,4 +1,5 @@
-import ScorecardDashboardView from 'src/sections/scorecard/view/scorecard-dashboard-view';
+import BusinessTurnoverView from 'src/sections/scorecard/view/business-turnover-view';
+// import ScorecardDashboardView from 'src/sections/scorecard/view/scorecard-dashboard-view';
 
 // ----------------------------------------------------------------------
 
@@ -7,5 +8,5 @@ export const metadata = {
 };
 
 export default function ScorecardDashboardPage() {
-  return <ScorecardDashboardView />;
+  return <BusinessTurnoverView />;
 }
