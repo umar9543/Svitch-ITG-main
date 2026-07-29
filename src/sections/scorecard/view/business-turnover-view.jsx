@@ -35,8 +35,8 @@ const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 // ─────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────
-const API_BASE = 'https://scorecard-production-e741.up.railway.app/api/conrad';
-const API_KEY = '081473f4b1e7309a9a09127bf277c15565b213fcf230451618d697071ebc30a4';
+const API_BASE = 'https://srv1850710.hstgr.cloud/scorecard/api/conrad';
+const API_KEY = '2ef655d9d41812035e1ac0ea3850561e5c44e4bb54f3aa15d4ea292e80f95bfd';
 
 // Correct order: Top 80% (green) → 80–95% (blue) → Tail 95%+ (orange)
 const SEGMENTS = [

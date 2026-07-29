@@ -22,7 +22,7 @@ import { useSettingsContext } from 'src/components/settings';
 import Iconify from 'src/components/iconify';
 import { useRouter } from 'src/routes/hooks';
 
-const API_KEY = '081473f4b1e7309a9a09127bf277c15565b213fcf230451618d697071ebc30a4';
+const API_KEY = '2ef655d9d41812035e1ac0ea3850561e5c44e4bb54f3aa15d4ea292e80f95bfd';
 
 const TIER_COLORS = {
   'Strategic Partner': '#1B3FBD',
@@ -125,7 +125,7 @@ export default function ScorecardDetailView({ id }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`https://scorecard-production-e741.up.railway.app/api/conrad/supplier/${id}`, {
+    fetch(`https://srv1850710.hstgr.cloud/scorecard/api/conrad/supplier/${id}`, {
       headers: { 'x-api-key': API_KEY }
     })
       .then(res => {

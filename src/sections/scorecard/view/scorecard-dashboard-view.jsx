@@ -34,8 +34,8 @@ const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 // ─────────────────────────────────────────────
 // API CONFIG
 // ─────────────────────────────────────────────
-const API_URL = 'https://scorecard-production-e741.up.railway.app/api/conrad/results';
-const API_KEY = '6cefbca609d6f935f9ff82ad234435c90eca70a0d8e46c6b1e6a151438faa93a';
+const API_URL = 'https://srv1850710.hstgr.cloud/scorecard/api/conrad/results';
+const API_KEY = '2ef655d9d41812035e1ac0ea3850561e5c44e4bb54f3aa15d4ea292e80f95bfd';
 
 // ─────────────────────────────────────────────
 // COLORS
@@ -245,8 +245,8 @@ function SupplierRow({ supplier }) {
   const pct = Math.min(score, 100);
 
   return (
-    <TableRow 
-      hover 
+    <TableRow
+      hover
       onClick={() => router.push(paths.dashboard.scorecardDetail(supplier.vendorNo))}
       sx={{ cursor: 'pointer' }}
     >
