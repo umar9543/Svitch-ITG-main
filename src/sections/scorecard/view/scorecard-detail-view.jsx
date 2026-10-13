@@ -22,7 +22,7 @@ import { useSettingsContext } from 'src/components/settings';
 import Iconify from 'src/components/iconify';
 import { useRouter } from 'src/routes/hooks';
 
-const API_KEY = '8177723cacead7c1b9b9196c7c8125079c745666b34967620c02579ff8da9927';
+const API_KEY = '8962434bf3f8ecc319c8af2416f90107db289a86c4a784e51823ef2dbc77aac7';
 
 const TIER_COLORS = {
   'Strategic Partner': '#1B3FBD',
@@ -125,7 +125,7 @@ export default function ScorecardDetailView({ id }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`https://srv1850710.hstgr.cloud/scorecard/api/conrad/supplier/${id}`, {
+    fetch(`https://scorecardapi.scmcloud.online/api/conrad/supplier/${id}`, {
       headers: { 'x-api-key': API_KEY }
     })
       .then(res => {
