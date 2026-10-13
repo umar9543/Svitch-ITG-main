@@ -35,7 +35,7 @@ const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 // API CONFIG
 // ─────────────────────────────────────────────
 const API_URL = 'https://scorecardapi.scmcloud.online/api/conrad/results';
-const API_KEY = '8962434bf3f8ecc319c8af2416f90107db289a86c4a784e51823ef2dbc77aac7';
+const API_KEY = '0620500d45a7d50d32329fbbf04d4a7d0e9087cb2d1813480e357bd28c13332c';
 
 // ─────────────────────────────────────────────
 // COLORS
